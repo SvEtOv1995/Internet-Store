@@ -1,0 +1,177 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Магазин</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            padding: 15px 0;
+            color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 40px;
+        }
+
+        .burger-menu {
+            display: none;
+        }
+
+        .menu {
+            display: flex;
+            gap: 20px;
+        }
+
+        .menu a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .search-bar input {
+            padding: 5px;
+            border: none;
+            border-radius: 3px;
+        }
+
+        .search-bar button {
+            background-color: #f39c12;
+            border: none;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+
+        .cart-favorites a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        .user-profile a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        @media screen and (max-width: 768px) {
+            .burger-menu {
+                display: block;
+            }
+
+            .menu {
+                display: none;
+                flex-direction: column;
+                gap: 10px;
+                position: absolute;
+                background-color: #333;
+                top: 60px;
+                left: 0;
+                width: 100%;
+                padding: 20px;
+            }
+
+            .menu.active {
+                display: flex;
+            }
+
+            .menu a {
+                padding: 10px;
+                border-bottom: 1px solid #444;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигационная панель -->
+    <header>
+        <div class="container">
+            <!-- Логотип -->
+            <div class="logo">
+                <a href="/">
+                    <img src="{% static 'images/logo.png' %}" alt="Логотип" />
+                </a>
+            </div>
+            <!-- Бургер-меню -->
+            <div class="burger-menu">
+                <button id="burger-icon" onclick="toggleMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div id="menu" class="menu">
+                    <ul>
+                        {% for category in categories %}
+                            <li>
+                                <a href="{% url 'category_products' slug=category.slug %}">{{ category.name }}</a>
+                                {% if category.subcategories.all %}
+                                    <ul>
+                                        {% for subcategory in category.subcategories.all %}
+                                            <li><a href="{% url 'category_products' slug=subcategory.slug %}">{{ subcategory.name }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <!-- Поиск -->
+            <div class="search-bar">
+                <form method="GET" action="{% url 'product_list' %}">
+                    <input type="text" name="q" placeholder="Поиск..." value="{{ request.GET.q }}">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+            <!-- Корзина и Избранное -->
+            <div class="cart-favorites">
+                <a href="{% url 'cart' %}" class="cart">
+                    <i class="fas fa-shopping-cart"></i> Корзина
+                </a>
+                <a href="{% url 'favorites' %}" class="favorites">
+                    <i class="fas fa-heart"></i> Избранное
+                </a>
+            </div>
+            <!-- Профиль пользователя -->
+            <div class="user-profile">
+                {% if user.is_authenticated %}
+                    <a href="">{{ user.username }}</a>
+                {% else %}
+                    <a href="">Войти</a> | <a href="">Регистрация</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Контент страницы -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Магазин. Все права защищены.</p>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById("menu");
+            menu.classList.toggle("active");
+        }
+    </script>
+</body>
+</html>
